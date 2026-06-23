@@ -92,10 +92,14 @@ export const requireConsumer = (
 
 // Generate JWT token
 export const generateToken = (userId: string, role: string): string => {
+  const secret = process.env.JWT_SECRET as string;
+  if (!secret) {
+    throw new Error('JWT_SECRET is not defined in environment variables.');
+  }
   return jwt.sign(
     { id: userId, role },
-    process.env.JWT_SECRET as string,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+    secret,
+    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' as any }
   );
 };
 

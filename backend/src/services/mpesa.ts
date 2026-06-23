@@ -18,7 +18,7 @@ const BASE_URL = ENVIRONMENT === 'sandbox'
   ? 'https://sandbox.safaricom.co.ke'
   : 'https://api.safaricom.co.ke';
 
-let accessToken: string | null = null;
+let accessToken: string = '';   // ← changed type
 let tokenExpiry: number = 0;
 
 // ── Get OAuth token ────────────────────────────────────────────────
@@ -27,13 +27,7 @@ async function getAccessToken(): Promise<string> {
     return accessToken;
   }
 
-  // ── Debug: check for hidden characters ─────────────────
-  console.log('🔍 Consumer Key length:', CONSUMER_KEY.length, '| Secret length:', CONSUMER_SECRET.length);
-  console.log('🔍 Consumer Key:', JSON.stringify(CONSUMER_KEY));
-  console.log('🔍 Consumer Secret:', JSON.stringify(CONSUMER_SECRET));
-
   const auth = Buffer.from(`${CONSUMER_KEY}:${CONSUMER_SECRET}`).toString('base64');
-  console.log('🔍 Base64 Auth:', auth);
 
   try {
     const { data } = await axios.get(
@@ -43,28 +37,18 @@ async function getAccessToken(): Promise<string> {
       }
     );
 
-    // ⚠️ Log the full response to see what Safaricom actually returns
-    console.log('🔎 OAuth response data:', JSON.stringify(data, null, 2));
-
     if (!data.access_token) {
       console.error('❌ No access_token in response');
       throw new Error('No access_token received');
     }
 
-    // Check if token looks like a JWT
-    if (!data.access_token.startsWith('eyJ')) {
-      console.warn('⚠️ Token does NOT start with "eyJ" – it may be invalid!');
-    }
-
-    accessToken = data.access_token;
+    accessToken = data.access_token as string;   // ← cast to string
     tokenExpiry = Date.now() + (data.expires_in || 3600) * 1000 - 120_000;
 
     console.log('✅ Token obtained. Expires in:', data.expires_in, 's');
-    console.log('🔑 Full token:', accessToken);
     return accessToken;
   } catch (error: any) {
-    const safError = error.response?.data;
-    console.error('❌ Failed to get M-Pesa access token:', safError || error.message);
+    console.error('❌ Failed to get M-Pesa access token:', error.response?.data || error.message);
     throw new Error('Token generation failed');
   }
 }
@@ -88,15 +72,6 @@ export async function stkPush({ phoneNumber, amount, accountReference, transacti
   const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
   const password = generatePassword(SHORTCODE!, PASSKEY!, timestamp);
 
-  // 🔎 Debug: log the credentials used for password generation
-  console.log('🔑 Shortcode:', SHORTCODE, '(length:', SHORTCODE?.length, ')');
-  console.log('🔑 Passkey:', PASSKEY, '(length:', PASSKEY?.length, ')');
-  console.log('🔑 Generated Password:', password);
-
-  // 🧪 TEMPORARY FIX: Use a public callback URL to test if the issue is the callback reachability
-  const callbackUrl = 'https://httpbin.org/post'; // remove this line after testing
-  // const callbackUrl = process.env.MPESA_CALLBACK_URL!; // restore this line once fixed
-
   const payload = {
     BusinessShortCode: SHORTCODE,
     Password: password,
@@ -106,14 +81,10 @@ export async function stkPush({ phoneNumber, amount, accountReference, transacti
     PartyA: phoneNumber,
     PartyB: SHORTCODE,
     PhoneNumber: phoneNumber,
-    CallBackURL: callbackUrl,
+    CallBackURL: process.env.MPESA_CALLBACK_URL!,
     AccountReference: accountReference,
     TransactionDesc: transactionDesc,
   };
-
-  // 👁️‍🗨️ Log everything before the call
-  console.log('\n📦 STK Push payload:', JSON.stringify(payload, null, 2));
-  console.log('🔐 Using token:', token);
 
   try {
     const response = await axios.post(
@@ -126,7 +97,6 @@ export async function stkPush({ phoneNumber, amount, accountReference, transacti
         },
       }
     );
-
     return response.data;
   } catch (error: any) {
     console.error('STK Push error:', error.response?.data || error.message);

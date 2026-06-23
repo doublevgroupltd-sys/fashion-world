@@ -35,6 +35,9 @@ export interface IOrder extends Document {
   paymentReference?: string;
   stripePaymentIntentId?: string;
   mpesaReceiptNumber?: string;
+  mpesaCheckoutRequestID?: string;   // ← added
+  mpesaTransactionID?: string;       // ← added
+  mpesaPaymentStatus?: string;       // ← added
   subtotal: number;
   shippingCost: number;
   tax: number;
@@ -105,6 +108,9 @@ const OrderSchema = new Schema<IOrder>(
     paymentReference: String,
     stripePaymentIntentId: String,
     mpesaReceiptNumber: String,
+    mpesaCheckoutRequestID: String,    // ← added
+    mpesaTransactionID: String,        // ← added
+    mpesaPaymentStatus: String,        // ← added
     subtotal: { type: Number, required: true },
     shippingCost: { type: Number, default: 0 },
     tax: { type: Number, default: 0 },
