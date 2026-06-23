@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Disallow: /dashboard/
+Disallow: /account/
+
+Sitemap: https://fashion-world.com/sitemap.xml

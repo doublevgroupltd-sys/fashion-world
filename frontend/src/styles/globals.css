@@ -1,0 +1,237 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base ───────────────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    --brand-primary: #e8782e;
+    --brand-gold: #d4af37;
+    --brand-dark: #0d0d0d;
+    --brand-cream: #fef9f3;
+    --header-h: 72px;
+  }
+
+  * {
+    @apply border-obsidian-100;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-white text-obsidian-900 font-sans;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* Focus styles */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-luxe-500;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #f1f1f1; }
+  ::-webkit-scrollbar-thumb { @apply bg-obsidian-300 rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-obsidian-400; }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight;
+  }
+
+  img {
+    @apply max-w-full;
+  }
+}
+
+/* ── Components ──────────────────────────────────────────────────────────── */
+@layer components {
+  /* Button variants */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 
+           px-6 py-3 rounded-none
+           bg-obsidian-900 text-white font-sans font-medium text-sm tracking-widest uppercase
+           transition-all duration-200
+           hover:bg-luxe-600 active:scale-[0.98]
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 
+           px-6 py-3 rounded-none
+           border border-obsidian-900 text-obsidian-900 bg-transparent font-sans font-medium text-sm tracking-widest uppercase
+           transition-all duration-200
+           hover:bg-obsidian-900 hover:text-white active:scale-[0.98]
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 
+           px-6 py-3 rounded-none
+           bg-gold-400 text-obsidian-900 font-sans font-semibold text-sm tracking-widest uppercase
+           transition-all duration-200
+           hover:bg-gold-500 active:scale-[0.98];
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 
+           px-4 py-2 rounded-none
+           text-obsidian-700 bg-transparent font-sans font-medium text-sm
+           transition-colors duration-200
+           hover:bg-obsidian-50 active:scale-[0.98];
+  }
+
+  /* Input styles */
+  .input-luxe {
+    @apply w-full px-4 py-3 border border-obsidian-200 bg-white
+           font-sans text-sm text-obsidian-900 placeholder:text-obsidian-400
+           focus:outline-none focus:border-obsidian-900 focus:ring-1 focus:ring-obsidian-900
+           transition-colors duration-200;
+  }
+
+  .label-luxe {
+    @apply block text-xs font-medium tracking-wider uppercase text-obsidian-600 mb-1.5;
+  }
+
+  /* Card */
+  .card-luxe {
+    @apply bg-white border border-obsidian-100 
+           shadow-[0_1px_3px_rgba(0,0,0,0.06)]
+           transition-shadow duration-200
+           hover:shadow-[0_4px_20px_rgba(0,0,0,0.1)];
+  }
+
+  /* Product image container */
+  .product-image-wrap {
+    @apply relative overflow-hidden bg-obsidian-50;
+    aspect-ratio: 3/4;
+  }
+
+  .product-image-wrap img {
+    @apply w-full h-full object-cover transition-transform duration-500;
+  }
+
+  .product-image-wrap:hover img {
+    @apply scale-105;
+  }
+
+  /* Section titles */
+  .section-title {
+    @apply font-display text-3xl md:text-4xl font-semibold text-obsidian-900;
+  }
+
+  .section-eyebrow {
+    @apply text-xs font-medium tracking-[0.2em] uppercase text-luxe-600 mb-2;
+  }
+
+  /* Badge */
+  .badge-sale {
+    @apply absolute top-3 left-3 z-10 
+           bg-red-600 text-white text-xs font-bold tracking-wider uppercase
+           px-2 py-1;
+  }
+
+  .badge-new {
+    @apply absolute top-3 left-3 z-10 
+           bg-obsidian-900 text-white text-xs font-bold tracking-wider uppercase
+           px-2 py-1;
+  }
+
+  .badge-africa {
+    @apply absolute top-3 right-3 z-10 
+           bg-gold-400 text-obsidian-900 text-xs font-bold tracking-wider uppercase
+           px-2 py-1;
+  }
+
+  /* Skeleton loader */
+  .skeleton {
+    @apply bg-shimmer-gradient bg-[length:200%_100%] animate-shimmer;
+  }
+
+  /* Dashboard sidebar */
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-3 text-sm font-medium
+           text-obsidian-600 hover:bg-luxe-50 hover:text-luxe-600
+           transition-colors duration-150 border-l-2 border-transparent;
+  }
+
+  .sidebar-link.active {
+    @apply bg-luxe-50 text-luxe-700 border-l-luxe-500;
+  }
+
+  /* Table */
+  .table-luxe {
+    @apply w-full text-sm;
+  }
+
+  .table-luxe thead tr {
+    @apply border-b border-obsidian-200;
+  }
+
+  .table-luxe thead th {
+    @apply py-3 px-4 text-left text-xs font-semibold tracking-wider uppercase text-obsidian-500;
+  }
+
+  .table-luxe tbody tr {
+    @apply border-b border-obsidian-100 hover:bg-obsidian-50 transition-colors;
+  }
+
+  .table-luxe tbody td {
+    @apply py-3.5 px-4 text-obsidian-700;
+  }
+
+  /* Status badges */
+  .status-badge {
+    @apply inline-flex items-center px-2.5 py-1 text-xs font-semibold uppercase tracking-wide;
+  }
+
+  .status-pending    { @apply status-badge bg-amber-100 text-amber-800; }
+  .status-confirmed  { @apply status-badge bg-blue-100 text-blue-800; }
+  .status-shipped    { @apply status-badge bg-purple-100 text-purple-800; }
+  .status-delivered  { @apply status-badge bg-green-100 text-green-800; }
+  .status-cancelled  { @apply status-badge bg-red-100 text-red-800; }
+  .status-paid       { @apply status-badge bg-green-100 text-green-800; }
+  .status-failed     { @apply status-badge bg-red-100 text-red-800; }
+}
+
+/* ── Utilities ───────────────────────────────────────────────────────────── */
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+
+  .hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar { display: none; }
+
+  /* Mega menu */
+  .mega-menu-enter { animation: fadeIn 0.15s ease-out; }
+
+  /* Image lightbox overlay */
+  .lightbox-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center 
+           bg-black/90 backdrop-blur-sm;
+  }
+
+  /* Cart drawer */
+  .cart-drawer {
+    @apply fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col bg-white 
+           shadow-2xl;
+    animation: slideInRight 0.3s ease-out;
+  }
+}
+
+/* ── Print styles (invoices) ──────────────────────────────────────────────── */
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  body { font-size: 12px; color: #000; background: #fff; }
+  .invoice-container { max-width: 100%; padding: 0; }
+}
