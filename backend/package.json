@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
-    "start": "ts-node src/index.ts",
+    "start": "npx ts-node src/index.ts",
     "seed": "ts-node seed.ts",
     "test": "jest"
   },
