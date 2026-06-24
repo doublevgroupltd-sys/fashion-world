@@ -21,12 +21,9 @@ export const protect = async (
   try {
     let token: string | undefined;
 
-    // Check Authorization header first
     if (req.headers.authorization?.startsWith('Bearer ')) {
       token = req.headers.authorization.split(' ')[1];
-    }
-    // Then check HTTP-only cookie
-    else if (req.cookies?.token) {
+    } else if (req.cookies?.token) {
       token = req.cookies.token;
     }
 
@@ -35,10 +32,8 @@ export const protect = async (
       return;
     }
 
-    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as JwtPayload;
 
-    // Fetch fresh user (checks if still active)
     const user = await User.findById(decoded.id).select('-password');
     if (!user || !user.isActive) {
       res.status(401).json({ success: false, message: 'User no longer exists or account disabled.' });
@@ -99,7 +94,7 @@ export const generateToken = (userId: string, role: string): string => {
   return jwt.sign(
     { id: userId, role },
     secret,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' as any }
+    { expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as any }
   );
 };
 
@@ -113,7 +108,7 @@ export const sendTokenCookie = (
     httpOnly: true,
     secure: isProduction,
     sameSite: isProduction ? 'strict' : 'lax',
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    maxAge: 7 * 24 * 60 * 60 * 1000,
     path: '/',
   });
 };
