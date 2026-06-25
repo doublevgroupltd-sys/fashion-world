@@ -41,15 +41,20 @@ export const uploadMultiple = multer({
 
 // After multer saves files to temp, upload each to Cloudinary and delete the temp file
 export const processImages = async (files: Express.Multer.File[]): Promise<string[]> => {
+  if (!files || files.length === 0) return [];
+
   const urls: string[] = [];
   for (const file of files) {
     try {
-      const url = await uploadToCloudinary(file.path);
+      // Read the file into a buffer (Cloudinary service expects a Buffer)
+      const buffer = fs.readFileSync(file.path);
+      const url = await uploadToCloudinary(buffer);
       urls.push(url);
-      // Remove the temp file
+      // Remove the temp file after successful upload
       fs.unlink(file.path, () => {});
     } catch (err) {
-      console.error('Cloudinary upload failed:', err);
+      console.error('Cloudinary upload failed for', file.originalname, err);
+      // Optionally, you could still keep the file or rethrow – we log and continue
     }
   }
   return urls;

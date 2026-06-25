@@ -2,9 +2,17 @@ import { Router, Request, Response } from 'express';
 import { body, query, validationResult } from 'express-validator';
 import Product from '../models/Product';
 import { protect, requireAgent, AuthRequest } from '../middleware/auth';
-import { uploadMultiple, processImages } from '../middleware/upload';
+import { uploadMultiple } from '../middleware/upload';
+import path from 'path';
 
 const router = Router();
+
+// ── Helper to process uploaded images (local fallback) ──
+const processImages = async (files: Express.Multer.File[]): Promise<string[]> => {
+  if (!files || files.length === 0) return [];
+  // Local storage: return the file paths
+  return files.map((f) => `/uploads/${f.filename}`);
+};
 
 const handleValidation = (req: Request, res: Response): boolean => {
   const errors = validationResult(req);
@@ -132,7 +140,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-// ── POST /api/products ── (Cloudinary images) ─────────────────────────
+// ── POST /api/products ── (Local upload, ready for Cloudinary) ──
 router.post(
   '/',
   protect,
@@ -148,7 +156,6 @@ router.post(
     if (!handleValidation(req, res)) return;
     try {
       const files = req.files as Express.Multer.File[];
-      // Upload to Cloudinary and get secure URLs
       const imageUrls = await processImages(files);
 
       const productData = {
@@ -176,7 +183,7 @@ router.post(
   }
 );
 
-// ── PUT /api/products/:id ── (Cloudinary images) ──────────────────────
+// ── PUT /api/products/:id ── (Local upload) ──
 router.put(
   '/:id',
   protect,
@@ -192,7 +199,6 @@ router.put(
       const files = req.files as Express.Multer.File[];
       const newImageUrls = await processImages(files);
 
-      // Handle image removal
       let currentImages = product.images || [];
       if (req.body.removeImages) {
         try {
@@ -228,7 +234,7 @@ router.put(
   }
 );
 
-// ── DELETE, DUPLICATE, BULK (unchanged) ──────────────────────────────
+// ── DELETE, DUPLICATE, BULK (unchanged) ──
 router.delete('/:id', protect, requireAgent, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const product = await Product.findByIdAndUpdate(req.params.id, { isActive: false }, { new: true });
