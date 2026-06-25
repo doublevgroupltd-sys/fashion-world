@@ -8,6 +8,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// Upload a file from a local path and return the secure Cloudinary URL
 export const uploadToCloudinary = async (filePath: string): Promise<string> => {
   const result = await cloudinary.uploader.upload(filePath, {
     folder: 'fashion-world-products',

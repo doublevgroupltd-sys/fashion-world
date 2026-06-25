@@ -192,6 +192,7 @@ router.put(
       const files = req.files as Express.Multer.File[];
       const newImageUrls = await processImages(files);
 
+      // Handle image removal
       let currentImages = product.images || [];
       if (req.body.removeImages) {
         try {

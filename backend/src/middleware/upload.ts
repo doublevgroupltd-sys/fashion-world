@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { uploadToCloudinary } from '../services/cloudinary';
 
+// Temporary folder (files are deleted after Cloudinary upload)
 const uploadDir = path.join(__dirname, '../../temp');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -38,12 +39,14 @@ export const uploadMultiple = multer({
   fileFilter: imageFilter,
 }).array('images', 10);
 
+// After multer saves files to temp, upload each to Cloudinary and delete the temp file
 export const processImages = async (files: Express.Multer.File[]): Promise<string[]> => {
   const urls: string[] = [];
   for (const file of files) {
     try {
       const url = await uploadToCloudinary(file.path);
       urls.push(url);
+      // Remove the temp file
       fs.unlink(file.path, () => {});
     } catch (err) {
       console.error('Cloudinary upload failed:', err);
