@@ -2,16 +2,17 @@ import { Router, Request, Response } from 'express';
 import { body, query, validationResult } from 'express-validator';
 import Product from '../models/Product';
 import { protect, requireAgent, AuthRequest } from '../middleware/auth';
-import { uploadMultiple } from '../middleware/upload';
-import path from 'path';
+import { uploadMultiple, processImages } from '../middleware/upload';
 
 const router = Router();
 
-// ── Helper to process uploaded images (local fallback) ──
-const processImages = async (files: Express.Multer.File[]): Promise<string[]> => {
-  if (!files || files.length === 0) return [];
-  // Local storage: return the file paths
-  return files.map((f) => `/uploads/${f.filename}`);
+// Helper to generate a URL-safe slug
+const generateSlug = (name: string): string => {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')   // replace non-alphanumeric with hyphens
+    .replace(/(^-|-$)/g, '')       // trim leading/trailing hyphens
+    + '-' + Math.random().toString(36).substring(2, 8); // add short random suffix
 };
 
 const handleValidation = (req: Request, res: Response): boolean => {
@@ -140,7 +141,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-// ── POST /api/products ── (Local upload, ready for Cloudinary) ──
+// ── POST /api/products ── (auto-generate slug) ─────────────────────────
 router.post(
   '/',
   protect,
@@ -160,6 +161,7 @@ router.post(
 
       const productData = {
         ...req.body,
+        slug: generateSlug(req.body.name),   // ← auto-generated slug
         price: parseFloat(req.body.price),
         compareAtPrice: req.body.compareAtPrice ? parseFloat(req.body.compareAtPrice) : undefined,
         costPrice: req.body.costPrice ? parseFloat(req.body.costPrice) : undefined,
@@ -183,7 +185,7 @@ router.post(
   }
 );
 
-// ── PUT /api/products/:id ── (Local upload) ──
+// ── PUT /api/products/:id (slug stays unchanged) ──────────────────────
 router.put(
   '/:id',
   protect,
@@ -219,6 +221,7 @@ router.put(
         ...(req.body.variants && { variants: JSON.parse(req.body.variants) }),
         ...(req.body.tags && { tags: JSON.parse(req.body.tags) }),
         images: currentImages,
+        // Do NOT overwrite the slug when updating
       };
 
       const updated = await Product.findByIdAndUpdate(
@@ -234,7 +237,7 @@ router.put(
   }
 );
 
-// ── DELETE, DUPLICATE, BULK (unchanged) ──
+// ── DELETE, DUPLICATE, BULK (unchanged) ──────────────────────────────
 router.delete('/:id', protect, requireAgent, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const product = await Product.findByIdAndUpdate(req.params.id, { isActive: false }, { new: true });
