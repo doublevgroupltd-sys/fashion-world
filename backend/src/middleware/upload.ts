@@ -46,15 +46,13 @@ export const processImages = async (files: Express.Multer.File[]): Promise<strin
   const urls: string[] = [];
   for (const file of files) {
     try {
-      // Read the file into a buffer (Cloudinary service expects a Buffer)
-      const buffer = fs.readFileSync(file.path);
-      const url = await uploadToCloudinary(buffer);
+      // uploadToCloudinary expects a file path (string), not a Buffer
+      const url = await uploadToCloudinary(file.path);
       urls.push(url);
       // Remove the temp file after successful upload
       fs.unlink(file.path, () => {});
     } catch (err) {
       console.error('Cloudinary upload failed for', file.originalname, err);
-      // Optionally, you could still keep the file or rethrow – we log and continue
     }
   }
   return urls;
